@@ -1,460 +1,211 @@
-import { login, probeServer, signup } from './api.ts'
-import { createServerFormValues, loadRememberedServer, normalizeServerInput, saveRememberedServer } from './server.ts'
-import { clearSession, loadSession, saveSession } from './session.ts'
-import { applyTheme, loadTheme, saveTheme, toggleTheme } from './theme.ts'
-import type {
-  AppAction,
-  AppScreen,
-  AuthFormValues,
-  AuthMode,
-  ServerConfig,
-  ServerFormValues,
-  Theme,
-} from './types.ts'
-import { renderApp } from './views.ts'
+import './style.css';
 
-const root = document.querySelector<HTMLDivElement>('#app')
+const app = document.querySelector<HTMLDivElement>('#app');
 
-if (!root) {
-  throw new Error('App root element was not found')
+if (!app) {
+  throw new Error('App root not found');
 }
 
-const appRoot = root
+const root = app;
 
-function createEmptyAuthValues(): AuthFormValues {
-  return {
-    name: '',
-    email: '',
-    password: '',
-  }
+type Screen = 'connect' | 'login';
+
+type AppState = {
+  screen: Screen;
+  hostname: string;
+  port: string;
+};
+
+const state: AppState = {
+  screen: 'connect',
+  hostname: '',
+  port: '8080',
+};
+
+function getServerAddress() {
+  const hostname = state.hostname.trim() || '127.0.0.1';
+  const port = state.port.trim() || '8080';
+  return `${hostname}:${port}`;
 }
 
-function getErrorText(error: unknown) {
-  return error instanceof Error ? error.message : 'Failed to connect to server.'
+function renderConnectScreen() {
+  return `
+    <main
+      class="grid min-h-svh place-items-center px-6 py-12 sm:px-8"
+      aria-labelledby="server-connect-title"
+    >
+      <section
+        class="grid w-full max-w-[28rem] gap-8 bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-black/10 sm:gap-12 sm:p-12 dark:outline-white/10"
+      >
+        <header class="grid gap-3">
+          <p class="m-0 text-[0.75rem] leading-none font-medium uppercase tracking-[0.08em] text-on-surface-muted">
+            Connect to
+          </p>
+          <h1
+            id="server-connect-title"
+            class="m-0 text-[clamp(2.25rem,4vw,3.5rem)] leading-[0.95] font-semibold tracking-[-0.02em] text-balance"
+          >
+            AudioHub
+          </h1>
+        </header>
+
+        <form class="grid gap-6" data-form="connect" novalidate>
+          <div class="grid gap-[0.4rem]">
+            <label
+              class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
+              for="hostname"
+            >
+              Hostname or IP
+            </label>
+            <input
+              class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
+              id="hostname"
+              name="hostname"
+              type="text"
+              inputmode="url"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="192.168.1.20"
+              value="${escapeAttribute(state.hostname)}"
+            />
+          </div>
+
+          <div class="grid gap-[0.4rem]">
+            <label
+              class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
+              for="port"
+            >
+              Port
+            </label>
+            <input
+              class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
+              id="port"
+              name="port"
+              type="text"
+              inputmode="numeric"
+              value="${escapeAttribute(state.port)}"
+              aria-describedby="connection-status"
+            />
+          </div>
+
+          <button
+            class="min-h-12 w-full cursor-pointer border-0 bg-linear-to-b from-primary to-primary-container px-4 py-3 text-[0.8rem] font-semibold uppercase tracking-[0.06em] text-surface-container-highest transition duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed"
+            type="submit"
+          >
+            Connect
+          </button>
+          <p class="m-0 text-sm leading-[1.45] text-on-surface-muted" id="connection-status">
+            Not connected
+          </p>
+        </form>
+      </section>
+    </main>
+  `;
 }
 
-let currentTheme: Theme = loadTheme()
-let currentServer: ServerConfig | null = null
-let currentScreen: AppScreen = {
-  kind: 'connection',
-  theme: currentTheme,
-  values: createServerFormValues(loadRememberedServer()),
-  loading: false,
-  error: null,
-  notice: null,
-}
+function renderLoginScreen() {
+  return `
+    <main
+      class="grid min-h-svh place-items-center px-6 py-12 sm:px-8"
+      aria-labelledby="login-title"
+    >
+      <section
+        class="grid w-full max-w-[32rem] gap-8 bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-black/10 sm:gap-12 sm:p-12 dark:outline-white/10"
+      >
+        <header>
+          <div class="flex items-baseline gap-4 sm:gap-2">
+            <h1
+              id="login-title"
+              class="m-0 text-[clamp(2.25rem,4vw,3.5rem)] leading-[0.95] font-semibold tracking-[-0.02em] text-balance"
+            >
+              AudioHub
+            </h1>
+            <p class="m-0 text-[0.75rem] leading-none font-medium tracking-[0.05em] text-on-surface-muted">
+              ${escapeHtml(getServerAddress())}
+            </p>
+          </div>
+        </header>
 
-applyTheme(currentTheme)
+        <form class="grid gap-6" data-form="login" novalidate>
+          <div class="grid gap-[0.4rem]">
+            <label
+              class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
+              for="email"
+            >
+              Email
+            </label>
+            <input
+              class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+            />
+          </div>
 
-function readConnectionValuesFromDom(): ServerFormValues {
-  if (currentScreen.kind !== 'connection') {
-    return createServerFormValues(currentServer)
-  }
+          <div class="grid gap-[0.4rem]">
+            <label
+              class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
+              for="password"
+            >
+              Password
+            </label>
+            <input
+              class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              aria-describedby="login-status"
+            />
+          </div>
 
-  const form = appRoot.querySelector<HTMLFormElement>('[data-connection-form]')
-
-  if (!form) {
-    return currentScreen.values
-  }
-
-  return {
-    host: form.querySelector<HTMLInputElement>('[name="host"]')?.value ?? currentScreen.values.host,
-    port: form.querySelector<HTMLInputElement>('[name="port"]')?.value ?? currentScreen.values.port,
-  }
-}
-
-function getConnectionValues() {
-  return currentScreen.kind === 'connection'
-    ? readConnectionValuesFromDom()
-    : createServerFormValues(currentServer)
-}
-
-function readAuthValuesFromDom(): AuthFormValues {
-  if (currentScreen.kind !== 'auth') {
-    return createEmptyAuthValues()
-  }
-
-  const form = appRoot.querySelector<HTMLFormElement>('[data-auth-form]')
-
-  if (!form) {
-    return currentScreen.values
-  }
-
-  return {
-    name: form.querySelector<HTMLInputElement>('[name="name"]')?.value ?? currentScreen.values.name,
-    email: form.querySelector<HTMLInputElement>('[name="email"]')?.value ?? currentScreen.values.email,
-    password: form.querySelector<HTMLInputElement>('[name="password"]')?.value ?? currentScreen.values.password,
-  }
-}
-
-function getAuthValues() {
-  return currentScreen.kind === 'auth'
-    ? readAuthValuesFromDom()
-    : createEmptyAuthValues()
-}
-
-function showConnection(options?: {
-  values?: ServerFormValues
-  loading?: boolean
-  error?: string | null
-  notice?: string | null
-}) {
-  currentScreen = {
-    kind: 'connection',
-    theme: currentTheme,
-    values: options?.values ?? getConnectionValues(),
-    loading: options?.loading ?? false,
-    error: options?.error ?? null,
-    notice: options?.notice ?? null,
-  }
-  render()
-}
-
-function showAuth(
-  mode: AuthMode,
-  options?: { error?: string | null; notice?: string | null; values?: AuthFormValues },
-) {
-  if (!currentServer) {
-    showConnection({
-      error: 'Connect to a server first.',
-      values: getConnectionValues(),
-    })
-    return
-  }
-
-  currentScreen = {
-    kind: 'auth',
-    theme: currentTheme,
-    server: currentServer,
-    mode,
-    values: options?.values ?? getAuthValues(),
-    loading: false,
-    error: options?.error ?? null,
-    notice: options?.notice ?? null,
-  }
-  render()
-}
-
-function showShell() {
-  if (!currentServer) {
-    showConnection({
-      error: 'Connect to a server first.',
-      values: getConnectionValues(),
-    })
-    return
-  }
-
-  const session = loadSession(currentServer.origin)
-
-  if (!session) {
-    showAuth('login')
-    return
-  }
-
-  currentScreen = {
-    kind: 'shell',
-    theme: currentTheme,
-    server: currentServer,
-    session,
-  }
-  render()
-}
-
-function syncTheme(nextTheme: Theme) {
-  currentTheme = nextTheme
-  saveTheme(nextTheme)
-
-  if (currentScreen.kind === 'connection') {
-    currentScreen = {
-      ...currentScreen,
-      theme: nextTheme,
-      values: getConnectionValues(),
-    }
-  } else if (currentScreen.kind === 'auth') {
-    currentScreen = {
-      ...currentScreen,
-      theme: nextTheme,
-      values: getAuthValues(),
-    }
-  } else {
-    currentScreen = {
-      ...currentScreen,
-      theme: nextTheme,
-    }
-  }
-
-  render()
-}
-
-function rememberConnectedServer(server: ServerConfig) {
-  const previousServer = currentServer ?? loadRememberedServer()
-
-  if (previousServer && previousServer.origin !== server.origin) {
-    clearSession()
-  }
-
-  currentServer = server
-  saveRememberedServer(server)
-}
-
-async function connectToServer(
-  values: ServerFormValues,
-  options?: { loadingNotice?: string | null },
-) {
-  let normalizedServer: ServerConfig
-
-  try {
-    normalizedServer = normalizeServerInput(values.host, values.port)
-  } catch (error) {
-    showConnection({
-      values: {
-        host: values.host.trim(),
-        port: values.port.trim() || '8080',
-      },
-      error: getErrorText(error),
-      notice: null,
-    })
-    return
-  }
-
-  const normalizedValues = createServerFormValues(normalizedServer)
-
-  showConnection({
-    values: normalizedValues,
-    loading: true,
-    error: null,
-    notice: options?.loadingNotice ?? null,
-  })
-
-  try {
-    await probeServer(normalizedServer)
-  } catch (error) {
-    showConnection({
-      values: normalizedValues,
-      loading: false,
-      error: getErrorText(error),
-      notice: null,
-    })
-    return
-  }
-
-  rememberConnectedServer(normalizedServer)
-
-  if (loadSession(normalizedServer.origin)) {
-    showShell()
-    return
-  }
-
-  showAuth('login', {
-    values: createEmptyAuthValues(),
-  })
-}
-
-async function handleConnectionSubmit(formData: FormData) {
-  const values = {
-    host: String(formData.get('host') ?? ''),
-    port: String(formData.get('port') ?? ''),
-  }
-
-  await connectToServer(values)
-}
-
-async function handleLoginSubmit(formData: FormData) {
-  if (!currentServer) {
-    showConnection({
-      error: 'Connect to a server first.',
-    })
-    return
-  }
-
-  const email = String(formData.get('email') ?? '').trim()
-  const password = String(formData.get('password') ?? '')
-  const values = {
-    ...getAuthValues(),
-    email,
-    password,
-  }
-
-  if (!email || !password) {
-    currentScreen = {
-      kind: 'auth',
-      theme: currentTheme,
-      server: currentServer,
-      mode: 'login',
-      values,
-      loading: false,
-      error: 'Enter both email and password.',
-      notice: null,
-    }
-    render()
-    return
-  }
-
-  currentScreen = {
-    kind: 'auth',
-    theme: currentTheme,
-    server: currentServer,
-    mode: 'login',
-    values,
-    loading: true,
-    error: null,
-    notice: null,
-  }
-  render()
-
-  try {
-    const session = await login({ email, password }, currentServer)
-    saveSession({ ...session, serverOrigin: currentServer.origin })
-    showShell()
-  } catch (error) {
-    currentScreen = {
-      kind: 'auth',
-      theme: currentTheme,
-      server: currentServer,
-      mode: 'login',
-      values,
-      loading: false,
-      error: getErrorText(error),
-      notice: null,
-    }
-    render()
-  }
-}
-
-async function handleSignupSubmit(formData: FormData) {
-  if (!currentServer) {
-    showConnection({
-      error: 'Connect to a server first.',
-    })
-    return
-  }
-
-  const name = String(formData.get('name') ?? '')
-  const email = String(formData.get('email') ?? '').trim()
-  const password = String(formData.get('password') ?? '')
-  const values = { name, email, password }
-
-  if (!name.trim() || !email || !password) {
-    currentScreen = {
-      kind: 'auth',
-      theme: currentTheme,
-      server: currentServer,
-      mode: 'signup',
-      values,
-      loading: false,
-      error: 'Enter your name, email, and password.',
-      notice: null,
-    }
-    render()
-    return
-  }
-
-  currentScreen = {
-    kind: 'auth',
-    theme: currentTheme,
-    server: currentServer,
-    mode: 'signup',
-    values,
-    loading: true,
-    error: null,
-    notice: null,
-  }
-  render()
-
-  try {
-    await signup({ name: name.trim(), email, password }, currentServer)
-  } catch (error) {
-    currentScreen = {
-      kind: 'auth',
-      theme: currentTheme,
-      server: currentServer,
-      mode: 'signup',
-      values,
-      loading: false,
-      error: getErrorText(error),
-      notice: null,
-    }
-    render()
-    return
-  }
-
-  try {
-    const session = await login({ email, password }, currentServer)
-    saveSession({ ...session, serverOrigin: currentServer.origin })
-    showShell()
-  } catch (error) {
-    showAuth('login', {
-      error: getErrorText(error),
-      notice: 'Account created. Sign in to continue.',
-      values: { name: '', email, password: '' },
-    })
-  }
-}
-
-function handleAction(action: AppAction, formData?: FormData) {
-  if (action === 'submit-connection' && formData) {
-    void handleConnectionSubmit(formData)
-    return
-  }
-
-  if (action === 'submit-login' && formData) {
-    void handleLoginSubmit(formData)
-    return
-  }
-
-  if (action === 'submit-signup' && formData) {
-    void handleSignupSubmit(formData)
-    return
-  }
-
-  if (action === 'toggle-theme') {
-    syncTheme(toggleTheme(currentTheme))
-    return
-  }
-
-  if (action === 'show-login') {
-    showAuth('login', { values: getAuthValues() })
-    return
-  }
-
-  if (action === 'show-signup') {
-    showAuth('signup', { values: getAuthValues() })
-    return
-  }
-
-  if (action === 'logout') {
-    clearSession()
-    showAuth('login', {
-      notice: 'You have been signed out.',
-      values: createEmptyAuthValues(),
-    })
-    return
-  }
-
-  if (action === 'change-server') {
-    showConnection({
-      values: createServerFormValues(currentServer ?? loadRememberedServer()),
-      notice: null,
-      error: null,
-    })
-  }
+          <button
+            class="min-h-12 w-full cursor-pointer border-0 bg-linear-to-b from-primary to-primary-container px-4 py-3 text-[0.8rem] font-semibold uppercase tracking-[0.06em] text-surface-container-highest transition duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed"
+            type="submit"
+          >
+            Login
+          </button>
+          <p class="m-0 text-sm leading-[1.45] text-on-surface-muted" id="login-status">
+            Incorrect email or password
+          </p>
+        </form>
+      </section>
+    </main>
+  `;
 }
 
 function render() {
-  renderApp(appRoot, currentScreen, handleAction)
+  root.innerHTML =
+    state.screen === 'connect' ? renderConnectScreen() : renderLoginScreen();
+
+  const connectForm = root.querySelector<HTMLFormElement>('[data-form="connect"]');
+  const loginForm = root.querySelector<HTMLFormElement>('[data-form="login"]');
+
+  connectForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(connectForm);
+    state.hostname = String(formData.get('hostname') ?? '');
+    state.port = String(formData.get('port') ?? '8080');
+    state.screen = 'login';
+    render();
+  });
+
+  loginForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+  });
 }
 
-async function initializeApp() {
-  const rememberedServer = loadRememberedServer()
-
-  if (!rememberedServer) {
-    render()
-    return
-  }
-
-  await connectToServer(createServerFormValues(rememberedServer), {
-    loadingNotice: 'Checking the saved backend...',
-  })
+function escapeAttribute(value: string) {
+  return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
 }
 
-void initializeApp()
+function escapeHtml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+render();
