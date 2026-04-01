@@ -11,6 +11,42 @@
   --color-primary-fixed: #5e5e5e;
   --color-on-surface: #141414;
   --color-on-surface-muted: #616161;
+  --color-outline-ghost: rgba(119, 119, 119, 0.18);
+}
+
+@layer theme {
+  :root,
+  :root[data-theme='light'] {
+    --color-surface: #f9f9f9;
+    --color-surface-container-low: #f3f3f3;
+    --color-surface-container-highest: #e2e2e2;
+    --color-surface-dim: #dadada;
+    --color-primary: #000000;
+    --color-primary-container: #3b3b3b;
+    --color-primary-fixed: #5e5e5e;
+    --color-on-surface: #141414;
+    --color-on-surface-muted: #616161;
+    --color-outline-ghost: rgba(119, 119, 119, 0.18);
+    --app-grid-line: rgba(0, 0, 0, 0.03);
+    --app-grid-sheen-start: rgba(255, 255, 255, 0.7);
+    --app-grid-sheen-end: rgba(255, 255, 255, 0);
+  }
+
+  :root[data-theme='dark'] {
+    --color-surface: #111111;
+    --color-surface-container-low: #171717;
+    --color-surface-container-highest: #262626;
+    --color-surface-dim: rgba(0, 0, 0, 0.5);
+    --color-primary: #f4f4f4;
+    --color-primary-container: #b6b6b6;
+    --color-primary-fixed: #8a8a8a;
+    --color-on-surface: #f4f4f4;
+    --color-on-surface-muted: #a0a0a0;
+    --color-outline-ghost: rgba(160, 160, 160, 0.18);
+    --app-grid-line: rgba(255, 255, 255, 0.04);
+    --app-grid-sheen-start: rgba(255, 255, 255, 0.03);
+    --app-grid-sheen-end: rgba(255, 255, 255, 0);
+  }
 }
 
 @layer base {
@@ -20,21 +56,6 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-surface: #111111;
-      --color-surface-container-low: #171717;
-      --color-surface-container-highest: #262626;
-      --color-surface-dim: rgba(0, 0, 0, 0.5);
-      --color-primary: #f4f4f4;
-      --color-primary-container: #b6b6b6;
-      --color-primary-fixed: #8a8a8a;
-      --color-on-surface: #f4f4f4;
-      --color-on-surface-muted: #a0a0a0;
-      color-scheme: dark;
-    }
   }
 
   * {
@@ -50,27 +71,14 @@
   body {
     @apply m-0 bg-surface font-sans text-on-surface;
     background-image:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0)),
+      linear-gradient(180deg, var(--app-grid-sheen-start), var(--app-grid-sheen-end)),
       repeating-linear-gradient(
         90deg,
         transparent 0,
         transparent 79px,
-        rgba(0, 0, 0, 0.03) 80px
+        var(--app-grid-line) 80px
       );
     background-attachment: fixed;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    body {
-      background-image:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
-        repeating-linear-gradient(
-          90deg,
-          transparent 0,
-          transparent 79px,
-          rgba(255, 255, 255, 0.04) 80px
-        );
-    }
   }
 
   button,

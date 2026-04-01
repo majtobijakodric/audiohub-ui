@@ -1,3 +1,4 @@
+import { createElement, Moon, Sun } from 'lucide';
 import './style.css';
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -9,18 +10,25 @@ if (!app) {
 const root = app;
 
 type Screen = 'connect' | 'login';
+type Theme = 'light' | 'dark';
 
 type AppState = {
   screen: Screen;
   hostname: string;
   port: string;
+  theme: Theme;
 };
+
+const themeStorageKey = 'audiohub-ui-theme';
 
 const state: AppState = {
   screen: 'connect',
   hostname: '',
   port: '8080',
+  theme: getInitialTheme(),
 };
+
+applyTheme(state.theme);
 
 function getServerAddress() {
   const hostname = state.hostname.trim() || '127.0.0.1';
@@ -28,14 +36,32 @@ function getServerAddress() {
   return `${hostname}:${port}`;
 }
 
+function renderThemeToggle() {
+  const nextTheme = state.theme === 'dark' ? 'light' : 'dark';
+  const label = nextTheme === 'dark' ? 'Switch to dark mode' : 'Switch to light mode';
+
+  return `
+    <button
+      class="absolute top-6 right-6 grid h-11 w-11 place-items-center border border-black/10 bg-surface-container-low text-on-surface transition duration-150 hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed sm:top-8 sm:right-8"
+      type="button"
+      data-action="toggle-theme"
+      aria-label="${label}"
+      title="${label}"
+    >
+      <span data-theme-icon aria-hidden="true"></span>
+    </button>
+  `;
+}
+
 function renderConnectScreen() {
   return `
     <main
-      class="grid min-h-svh place-items-center px-6 py-12 sm:px-8"
+      class="relative grid min-h-svh place-items-center px-6 py-12 sm:px-8"
       aria-labelledby="server-connect-title"
     >
+      ${renderThemeToggle()}
       <section
-        class="grid w-full max-w-[28rem] gap-8 bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-black/10 sm:gap-12 sm:p-12 dark:outline-white/10"
+        class="grid w-full max-w-[28rem] gap-8 bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-ghost sm:gap-12 sm:p-12"
       >
         <header class="grid gap-3">
           <p class="m-0 text-[0.75rem] leading-none font-medium uppercase tracking-[0.08em] text-on-surface-muted">
@@ -106,11 +132,12 @@ function renderConnectScreen() {
 function renderLoginScreen() {
   return `
     <main
-      class="grid min-h-svh place-items-center px-6 py-12 sm:px-8"
+      class="relative grid min-h-svh place-items-center px-6 py-12 sm:px-8"
       aria-labelledby="login-title"
     >
+      ${renderThemeToggle()}
       <section
-        class="grid w-full max-w-[32rem] gap-8 bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-black/10 sm:gap-12 sm:p-12 dark:outline-white/10"
+        class="grid w-full max-w-[32rem] gap-8 bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-ghost sm:gap-12 sm:p-12"
       >
         <header>
           <div class="flex items-baseline gap-4 sm:gap-2">
@@ -181,6 +208,10 @@ function render() {
 
   const connectForm = root.querySelector<HTMLFormElement>('[data-form="connect"]');
   const loginForm = root.querySelector<HTMLFormElement>('[data-form="login"]');
+  const themeButton = root.querySelector<HTMLButtonElement>('[data-action="toggle-theme"]');
+  const themeIcon = root.querySelector<HTMLElement>('[data-theme-icon]');
+
+  renderThemeIcon(themeIcon);
 
   connectForm?.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -195,6 +226,13 @@ function render() {
   loginForm?.addEventListener('submit', (event) => {
     event.preventDefault();
   });
+
+  themeButton?.addEventListener('click', () => {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    persistTheme(state.theme);
+    applyTheme(state.theme);
+    render();
+  });
 }
 
 function escapeAttribute(value: string) {
@@ -206,6 +244,39 @@ function escapeHtml(value: string) {
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
+}
+
+function getInitialTheme(): Theme {
+  const savedTheme = localStorage.getItem(themeStorageKey);
+
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    return savedTheme;
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function persistTheme(theme: Theme) {
+  localStorage.setItem(themeStorageKey, theme);
+}
+
+function applyTheme(theme: Theme) {
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+}
+
+function renderThemeIcon(container: HTMLElement | null) {
+  if (!container) {
+    return;
+  }
+
+  container.replaceChildren(
+    createElement(state.theme === 'dark' ? Sun : Moon, {
+      width: 18,
+      height: 18,
+      strokeWidth: 2,
+    }),
+  );
 }
 
 render();
