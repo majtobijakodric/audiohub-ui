@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [tailwindcss()],
+  base: '/audiohub-ui/',
   build: {
     rollupOptions: {
       input: {

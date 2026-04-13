@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "lucide": "^1.7.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.2",
+    "gh-pages": "^6.3.0",
     "tailwindcss": "^4.2.2",
     "vite": "^8.0.4"
   }
