@@ -57,6 +57,50 @@ export async function login(hostname, port, body) {
   return payload;
 }
 
+export async function searchYoutube(hostname, port, ytTitle) {
+  const response = await fetchWithTimeout(
+    `${buildBaseUrl(hostname, port)}/youtube/search`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ytTitle }),
+    },
+    8000,
+  );
+
+  const payload = await readJson(response);
+
+  if (!response.ok) {
+    throw new Error(payload.message || 'Search request failed.');
+  }
+
+  return payload;
+}
+
+export async function downloadSong(hostname, port, song) {
+  const response = await fetchWithTimeout(
+    `${buildBaseUrl(hostname, port)}/songs/download`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(song),
+    },
+    15000,
+  );
+
+  const payload = await readJson(response);
+
+  if (!response.ok) {
+    throw new Error(payload.message || 'Song download failed.');
+  }
+
+  return payload;
+}
+
 export function buildBaseUrl(hostname, port) {
   return `http://${hostname}:${port}/api`;
 }
