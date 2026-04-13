@@ -4,15 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AudioHub | Connect</title>
-    <script type="module" crossorigin src="/assets/main-DGFVZvr3.js"></script>
+    <title>AudioHub | Signup</title>
+    <script type="module" crossorigin src="/assets/signup-C1QGEcDA.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/theme-D7T26Bpp.js">
     <link rel="stylesheet" crossorigin href="/assets/theme-_bfsIdk0.css">
   </head>
   <body>
     <main
       class="relative grid min-h-svh place-items-center px-6 py-12 sm:px-8"
-      aria-labelledby="server-connect-title">
+      aria-labelledby="signup-title"
+    >
       <button
         class="absolute top-6 right-6 grid h-11 w-11 place-items-center border border-black/10 bg-surface-container-low text-on-surface transition duration-150 hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed sm:top-8 sm:right-8"
         type="button"
@@ -24,55 +25,65 @@
       </button>
 
       <section
-        class="grid w-full max-w-[28rem] gap-8 bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-ghost sm:gap-12 sm:p-12"
+        class="grid w-full max-w-[32rem] gap-8 bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-ghost sm:gap-12 sm:p-12"
       >
-        <header class="grid gap-3">
-          <p class="m-0 text-[0.75rem] leading-none font-medium uppercase tracking-[0.08em] text-on-surface-muted">
-            Connect to
-          </p>
+        <header class="grid gap-4">
           <h1
-            id="server-connect-title"
+            id="signup-title"
             class="m-0 text-[clamp(2.25rem,4vw,3.5rem)] leading-[0.95] font-semibold tracking-[-0.02em] text-balance"
           >
             AudioHub
           </h1>
+
         </header>
 
-        <form class="grid gap-6" data-form="connect" novalidate>
+        <form class="grid gap-6" data-form="signup" novalidate>
           <div class="grid gap-[0.4rem]">
             <label
               class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
-              for="hostname"
+              for="name"
             >
-              Hostname or IP
+              Name
             </label>
             <input
               class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
-              id="hostname"
-              name="hostname"
+              id="name"
+              name="name"
               type="text"
-              inputmode="url"
-              autocomplete="off"
-              spellcheck="false"
-              placeholder="192.168.1.20"
+              autocomplete="name"
             />
           </div>
 
           <div class="grid gap-[0.4rem]">
             <label
               class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
-              for="port"
+              for="signup-email"
             >
-              Port
+              Email
             </label>
             <input
               class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
-              id="port"
-              name="port"
-              type="text"
-              inputmode="numeric"
-              value="8080"
-              aria-describedby="connection-status"
+              id="signup-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="grid gap-[0.4rem]">
+            <label
+              class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
+              for="signup-password"
+            >
+              Password
+            </label>
+            <input
+              class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
+              id="signup-password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              aria-describedby="signup-status"
             />
           </div>
 
@@ -80,13 +91,18 @@
             class="min-h-12 w-full cursor-pointer border-0 bg-primary px-4 py-3 text-[0.8rem] font-semibold uppercase tracking-[0.06em] text-surface-container-highest transition duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed disabled:cursor-wait disabled:opacity-70"
             type="submit"
           >
-            Connect
+            Create account
           </button>
 
-          <p class="m-0 text-sm leading-[1.45] text-on-surface-muted" id="connection-status">
-            Enter a server address and verify AudioHub is reachable.
+          <p class="m-0 text-sm leading-[1.45] text-on-surface-muted" id="signup-status">
+            Fill out the form to create an account.
           </p>
         </form>
+
+        <nav class="flex flex-wrap items-center justify-between gap-3 text-sm text-on-surface-muted">
+          <a class="text-on-surface" href="/src/pages/login.html">Back to login</a>
+          <a class="text-on-surface" href="/index.html">Change server</a>
+        </nav>
       </section>
     </main>
 

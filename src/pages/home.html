@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AudioHub | Home</title>
+  <script type="module" crossorigin src="/assets/home-C9ITsTqL.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/theme-D7T26Bpp.js">
+  <link rel="stylesheet" crossorigin href="/assets/theme-_bfsIdk0.css">
+</head>
+
+<body>
+  <main class="relative grid min-h-svh px-6 py-12 sm:px-8">
+    <button class="absolute top-6 right-6 grid h-11 w-11 place-items-center border border-black/10 bg-surface-container-low text-on-surface transition duration-150 hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed sm:top-8 sm:right-8" type="button" data-action="toggle-theme" aria-label="Toggle theme" title="Toggle theme">
+      <span data-theme-icon aria-hidden="true"></span>
+    </button>
+
+    <section
+      class="mx-auto grid w-full max-w-[42rem] gap-8 self-center bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-ghost sm:p-12">
+      <header class="grid gap-3">
+        <p class="m-0 text-[0.75rem] leading-none font-medium uppercase tracking-[0.08em] text-on-surface-muted">
+          Search
+        </p>
+        <h1 class="m-0 text-[clamp(2.25rem,4vw,3.5rem)] leading-[0.95] font-semibold tracking-[-0.02em] text-balance">
+          AudioHub
+        </h1>
+      </header>
+
+      <form class="grid gap-6" data-form="search" novalidate>
+        <div class="grid gap-[0.4rem]">
+          <label class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
+            for="search-query">
+            Song or artist
+          </label>
+          <input
+            class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
+            id="search-query" name="ytTitle" type="text" autocomplete="on" placeholder="Search for a song"
+            aria-describedby="search-status" />
+        </div>
+
+        <button
+          class="min-h-12 w-full cursor-pointer border-0 bg-primary px-4 py-3 text-[0.8rem] font-semibold uppercase tracking-[0.06em] text-surface-container-highest transition duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed disabled:cursor-wait disabled:opacity-70"
+          type="submit">
+          Search
+        </button>
+
+        <p class="m-0 text-sm leading-[1.45] text-on-surface-muted" id="search-status">
+        </p>
+      </form>
+
+      <section class="grid gap-3" data-role="results"></section>
+    </section>
+  </main>
+
+</body>
+
+</html>
