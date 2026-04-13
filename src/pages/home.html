@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AudioHub | Home</title>
+  </head>
+  <body>
+    <main class="relative grid min-h-svh place-items-center px-6 py-12 sm:px-8">
+      <button
+        class="absolute top-6 right-6 grid h-11 w-11 place-items-center border border-black/10 bg-surface-container-low text-on-surface transition duration-150 hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed sm:top-8 sm:right-8"
+        type="button"
+        data-action="toggle-theme"
+        aria-label="Toggle theme"
+        title="Toggle theme"
+      >
+        <span data-theme-icon aria-hidden="true"></span>
+      </button>
+
+      <section class="grid place-items-center gap-4 text-center">
+        <p class="m-0 text-[0.75rem] leading-none font-medium uppercase tracking-[0.08em] text-on-surface-muted">
+          Session
+        </p>
+        <h1 class="m-0 text-[clamp(2.5rem,5vw,4.75rem)] leading-[0.92] font-semibold tracking-[-0.02em] text-balance">
+          Hello <span data-role="username">there</span>
+        </h1>
+      </section>
+    </main>
+
+    <script type="module" src="../home.js"></script>
+  </body>
+</html>
