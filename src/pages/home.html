@@ -3,51 +3,47 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AudioHub | Home</title>
 </head>
 
 <body>
-  <main class="relative grid min-h-svh px-6 py-12 sm:px-8">
-    <button class="absolute top-6 right-6 grid h-11 w-11 place-items-center border border-black/10 bg-surface-container-low text-on-surface transition duration-150 hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed sm:top-8 sm:right-8" type="button" data-action="toggle-theme" aria-label="Toggle theme" title="Toggle theme">
+  <main class="grid h-svh overflow-hidden bg-surface p-3 sm:p-4">
+    <section class="relative grid h-full min-h-0 w-full grid-cols-[clamp(5.5rem,14vw,14rem)_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_4.5rem] gap-3 overflow-visible bg-surface p-0">
+      <button class="absolute top-4 right-4 grid h-11 w-11 place-items-center bg-surface-container-highest text-on-surface transition duration-150 hover:bg-surface-dim focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed sm:top-6 sm:right-6" type="button" data-action="toggle-theme" aria-label="Toggle theme" title="Toggle theme">
       <span data-theme-icon aria-hidden="true"></span>
-    </button>
+      </button>
 
-    <section
-      class="mx-auto grid w-full max-w-[42rem] gap-8 self-center bg-surface-container-low p-6 outline outline-1 -outline-offset-1 outline-ghost sm:p-12">
-      <header class="grid gap-3">
+        <section class="relative grid gap-3 rounded-panel bg-surface-container-highest p-3 outline outline-ghost -outline-offset-1 sm:p-4" style="grid-column: 1 / -1;">
+          <form class="flex min-h-16 items-center gap-3 rounded-[1.5rem] bg-surface-container-low px-4 text-on-surface outline outline-ghost transition-colors duration-150 focus-within:outline-2 focus-within:outline-primary-fixed/45" data-form="search" novalidate>
+            <span class="grid h-5 w-5 shrink-0 place-items-center text-on-surface-muted" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5"></circle>
+                <path d="M16 16l4.5 4.5"></path>
+              </svg>
+            </span>
+            <input
+              class="min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-on-surface outline-none placeholder:text-on-surface-muted/80"
+              id="search-query" name="ytTitle" type="text" autocomplete="on"
+              placeholder="What do you want to play?" aria-describedby="search-status" />
+          </form>
+
+          <p class="m-0 text-sm leading-[1.45] text-on-surface-muted" id="search-status"></p>
+
+          <div class="absolute left-3 right-3 top-full z-20 mt-3 grid max-h-56 gap-2 overflow-y-auto rounded-panel bg-surface-container-highest p-2 outline outline-ghost -outline-offset-1" data-role="search-results" hidden></div>
+        </section>
+
+      <aside class="min-h-0 rounded-panel bg-surface-container-highest outline outline-ghost -outline-offset-1" aria-label="Sidebar" style="grid-column: 1; grid-row: 2;"></aside>
+
+      <section class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] rounded-panel bg-surface-container-low p-3 outline outline-ghost -outline-offset-1" style="grid-column: 2; grid-row: 2;">
         <p class="m-0 text-[0.75rem] leading-none font-medium uppercase tracking-[0.08em] text-on-surface-muted">
-          Search
+          All songs
         </p>
-        <h1 class="m-0 text-[clamp(2.25rem,4vw,3.5rem)] leading-[0.95] font-semibold tracking-[-0.02em] text-balance">
-          AudioHub
-        </h1>
-      </header>
+        <div class="grid min-h-0 gap-2 overflow-y-auto pr-1" data-role="library"></div>
+      </section>
 
-      <form class="grid gap-6" data-form="search" novalidate>
-        <div class="grid gap-[0.4rem]">
-          <label class="text-[0.75rem] leading-none font-medium uppercase tracking-[0.05em] text-on-surface-muted"
-            for="search-query">
-            Song or artist
-          </label>
-          <input
-            class="w-full border-0 border-b-2 border-surface-container-highest bg-transparent px-0 pb-3 text-base text-on-surface outline-none transition-colors duration-150 placeholder:text-on-surface-muted/70 focus:border-primary"
-            id="search-query" name="ytTitle" type="text" autocomplete="on" placeholder="Search for a song"
-            aria-describedby="search-status" />
-        </div>
-
-        <button
-          class="min-h-12 w-full cursor-pointer border-0 bg-primary px-4 py-3 text-[0.8rem] font-semibold uppercase tracking-[0.06em] text-surface-container-highest transition duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-fixed disabled:cursor-wait disabled:opacity-70"
-          type="submit">
-          Search
-        </button>
-
-        <p class="m-0 text-sm leading-[1.45] text-on-surface-muted" id="search-status">
-        </p>
-      </form>
-
-      <section class="grid gap-3" data-role="results"></section>
+      <footer class="rounded-panel bg-surface-container-highest outline outline-ghost -outline-offset-1" style="grid-column: 1 / -1; grid-row: 3;"></footer>
     </section>
   </main>
 

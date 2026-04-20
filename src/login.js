@@ -6,11 +6,12 @@ import {
   saveAuthSession,
   saveEmail,
 } from './shared/storage.js';
+import { appUrl } from './shared/routes.js';
 import { setupThemeToggle } from './shared/theme.js';
 
 const connection = getSavedConnection();
 if (!connection.hostname || !connection.port) {
-  window.location.href = '/index.html';
+  window.location.href = appUrl('index.html');
 }
 
 const loginForm = document.querySelector('[data-form="login"]');
@@ -51,7 +52,7 @@ loginForm.addEventListener('submit', async (event) => {
     const result = await login(connection.hostname, connection.port, { email, password });
     saveAuthSession(result.user, result.token);
     passwordInput.value = '';
-    window.location.href = '/src/pages/home.html';
+    window.location.href = appUrl('src/pages/home.html');
   } catch (error) {
     setStatus(getErrorMessage(error, 'Login failed.'));
   } finally {

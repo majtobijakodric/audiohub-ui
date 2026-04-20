@@ -79,7 +79,7 @@ export async function searchYoutube(hostname, port, ytTitle) {
   return payload;
 }
 
-export async function downloadSong(hostname, port, song) {
+export async function downloadSong(hostname, port, videoId) {
   const response = await fetchWithTimeout(
     `${buildBaseUrl(hostname, port)}/songs/download`,
     {
@@ -87,7 +87,7 @@ export async function downloadSong(hostname, port, song) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(song),
+      body: JSON.stringify({ videoId }),
     },
     15000,
   );
@@ -96,6 +96,17 @@ export async function downloadSong(hostname, port, song) {
 
   if (!response.ok) {
     throw new Error(payload.message || 'Song download failed.');
+  }
+
+  return payload;
+}
+
+export async function listSongs(hostname, port) {
+  const response = await fetchWithTimeout(`${buildBaseUrl(hostname, port)}/songs/listsongs`, {}, 8000);
+  const payload = await readJson(response);
+
+  if (!response.ok) {
+    throw new Error(payload.message || 'Songs list request failed.');
   }
 
   return payload;

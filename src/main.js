@@ -4,6 +4,7 @@ import {
   getSavedConnection,
   saveConnection,
 } from './shared/storage.js';
+import { appUrl } from './shared/routes.js';
 import { setupThemeToggle } from './shared/theme.js';
 
 const connectForm = document.querySelector('[data-form="connect"]');
@@ -52,7 +53,7 @@ connectForm.addEventListener('submit', async (event) => {
     }
 
     setStatus('Server is reachable. Opening login page...');
-    window.location.href = '/src/pages/login.html';
+    window.location.href = appUrl('src/pages/login.html');
   } catch (error) {
     setStatus(getErrorMessage(error, 'Could not reach AudioHub at that hostname and port.'));
   } finally {

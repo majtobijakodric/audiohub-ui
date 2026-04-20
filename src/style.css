@@ -88,10 +88,6 @@
     border-top-right-radius: var(--radius-control);
   }
 
-  main>section {
-    border-radius: var(--radius-panel);
-  }
-
   a {
     color: inherit;
     text-decoration: none;

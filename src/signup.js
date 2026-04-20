@@ -1,11 +1,12 @@
 import './style.css';
 import { signup } from './shared/api.js';
 import { getSavedConnection, saveEmail } from './shared/storage.js';
+import { appUrl } from './shared/routes.js';
 import { setupThemeToggle } from './shared/theme.js';
 
 const connection = getSavedConnection();
 if (!connection.hostname || !connection.port) {
-  window.location.href = '/index.html';
+  window.location.href = appUrl('index.html');
 }
 
 const signupForm = document.querySelector('[data-form="signup"]');
@@ -51,7 +52,7 @@ signupForm.addEventListener('submit', async (event) => {
     saveEmail(email);
     setStatus('Account created. Redirecting to login...');
     window.setTimeout(() => {
-      window.location.href = '/src/pages/login.html';
+      window.location.href = appUrl('src/pages/login.html');
     }, 500);
   } catch (error) {
     setStatus(getErrorMessage(error, 'Signup failed.'));
